@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Food Delivery App</title>
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+     </script>
+    <style>
+         .btn {
+    margin-right:5px;
+    margin-left:5px;
+    margin-bottom:5px;
+    margin-top:5px
+
+}
+</style>
+    <!-- Bootstrap Core CSS -->
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+
+         //Assign event handler to every button. This method gets called once the entire form is loaded
+
+         window.onload=function(){
+    var updt = document.getElementsByClassName('btn btn-primary');
+    var del = document.getElementsByClassName('btn btn-danger');
+    for(var i = 0; i < updt.length; i++) {
+    updt[i].addEventListener("click", update_item);
+    del[i].addEventListener("click", delete_item);
+
+    }
+        };
+
+        function addUpdateItemOnClick()
+        {
+        	if(cuisines.value=="Choose Cuisine"||iditemname.value==""||iditemdescr.value==""||iditemprice.value=="")
+        		{
+        		alert("Please enter all values")
+        		}
+        	else
+        		{
+            	let restid = localStorage.getItem('restid');
+                let xhttp = new XMLHttpRequest();
+                //Add Item
+                var el_item=document.getElementById("iditemname").value
+                    var el_descr=document.getElementById("iditemdescr").value
+                    var el_price=document.getElementById("iditemprice").value
+                    var ddl_cuisineid=document.getElementById("cuisines").value
+                if (document.getElementsByClassName("btn btn-info")[0].innerHTML=="Add Menu Item")
+                {
+                    
+                    let data={
+                                "itemName":el_item,
+                                "description":el_descr,
+                                "price":el_price
+                            };
+                data = JSON.stringify(data);
+                    let url = "http://localhost:8080/restaurant/"+restid+"/cuisine/"+ddl_cuisineid+"/item/addItem";
+                 xhttp.open("POST", url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.onreadystatechange = function() 
+                {
+                	 if(this.readyState == 4 && this.status == 200) 
+                		 {
+                		 SendGetItemsByRestandCuisineRequest()
+                		 }
+                  //  fillUIHelper(xhttp.responseText);
+
+                }
+                xhttp.send(data);
+
+                }
+
+                //Update item condition
+                else
+                {
+                	var btnid=document.getElementsByClassName("btn btn-info")[0];
+                	//alert(btnid.id);
+                	//parsedStr=JSON.parse(this.id)
+                	
+                	   let data={
+                                "description":el_descr,
+                                "price":el_price
+                            };
+                data = JSON.stringify(data);
+                    let url = "http://localhost:8080/item/updateItem/itemID="+btnid.id;
+                    xhttp.open("PUT", url, true);
+                    xhttp.setRequestHeader("Content-type", "application/json");
+                    xhttp.onreadystatechange = function() 
+                {
+                    if(this.readyState == 4 && this.status == 200) 
+                    {
+                    	 SendGetItemsByRestandCuisineRequest();
+                    	 alert("Menu item updated successfully!")
+                        //fillUIHelper(xhttp.responseText);
+                    }
+
+                }
+                xhttp.send(data);
+
+                }
+        		
+        		}
+
+
+        }
+
+
+
+    //Transfer information from card to form
+     function update_item()
+        {
+            parsed_str=JSON.parse(this.id);
+            var el_item=document.getElementById("iditemname")
+            var ddl_cuisine=document.getElementById("cuisines")
+            el_item.disabled=true;
+            ddl_cuisine.disabled=true;
+            var el_descr=document.getElementById("iditemdescr")
+            var el_price=document.getElementById("iditemprice")
+            var btn_item=document.getElementsByClassName("btn btn-info")[0]
+            //alert(this.parentElement.getElementsByClassName("card-header")[1].innerHTML)
+
+
+           el_item.value=parsed_str.itemName
+           ddl_cuisine.value=parsed_str.cuisineId
+           el_descr.value=parsed_str.description
+           el_price.value=parsed_str.price
+
+           btn_item.innerHTML="Update Items";
+           btn_item.id=parsed_str.itemId
+           //alert(btn_item.id)
+           //alert(btn_item.innerHTML)
+            
+
+        }
+
+
+
+        function delete_item()
+        {
+            if (confirm('Are you sure you want to delete this item?')) {
+            	var parsedStr=JSON.parse(this.id);
+                i_id=parseInt(parsedStr.itemId);
+                //var i_id=this.id.itemId;
+                //alert(i_id);
+                let xhttp = new XMLHttpRequest();
+               // alert("I was here");
+        let url = "http://localhost:8080/item/deleteItem/itemID="+i_id;
+        xhttp.open("DELETE", url, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.onreadystatechange = function()
+        {
+            if(this.readyState == 4 && this.status == 200)
+            {
+            	SendGetItemsByRestandCuisineRequest();
+                  // fillUIHelper(xhttp.responseText)
+
+            }
+
+        }
+        xhttp.send();
+
+                } 
+
+        }
+
+        //Common helper function to fill UI
+        function fillUIHelper(response)
+        {
+            //response='[ {"cuisineId":2,"cuisineName":"Chinese", "itemDetailsList":[{ "itemId": 9, "cuisineId": 2,"itemName": "Idli", "description": "Idli", "price": 15},{ "itemId": 10,"cuisineId": 2,"itemName": "Dosa","description": "Dosa","price": 7}]},{"cuisineId": 1,"cuisineName": "Indian","itemDetailsList":[{"itemId": 1,"cuisineId": 1,"itemName": "Butter Chicken","description": "Butter Chicken","price": 50},{"itemId": 4,"cuisineId": 1,"itemName": "MeatBalls","description": "MeatBalls","price": 40}]}]';
+                response = JSON.parse(response);
+                console.log(response);
+                 //alert(response[0].name)
+                 var test = document.getElementById("items");
+                 test.innerHTML="";
+                 var cuisine_dropdown=document.getElementById("cuisines");
+                 cuisine_dropdown.length = 0;
+
+                let defaultOption = document.createElement('option');
+                defaultOption.text = 'Choose Cuisine';
+                cuisine_dropdown.add(defaultOption);
+
+                 var items = response.length;
+                 console.log(items)
+                 for(var i = 0; i < items; i++) 
+                  {
+                    //Bind Dropdown
+                    option = document.createElement('option');
+                    option.text = response[i].cuisineName;
+                    option.value = response[i].cuisineId;
+                    cuisine_dropdown.add(option);
+                    //Bind Cards
+                   // var h2=document.createElement("h4")
+                    //h2.innerHTML=response[i].cuisineName
+                    //h2.id=response[i].cuisineId
+                    //test.appendChild(h2)
+                    var row = document.createElement("div"); 
+                    row.className = "row";
+                    test.appendChild(row)
+                     for(var  j=0; j < response[i].itemDetailsList.length; j++)
+                     { 
+                        var card = document.createElement('div');
+                        card.className ='card';
+                        test.appendChild(card)
+                        var card_header = document.createElement('div');
+                        card_header.className='card-header';
+                        card_header.innerHTML = response[i].itemDetailsList[j].itemName+": $"+response[i].itemDetailsList[j].price;
+                        card_header.id='CH'+response[i].itemDetailsList[j].itemId;
+                        card.appendChild(card_header)
+                        var card_text=document.createElement('div');
+                        card_text.id='CT'+response[i].itemDetailsList[j].itemId;
+                        card_text.className='card-body';
+                        card_text.innerHTML=response[i].itemDetailsList[j].description;
+                        card.appendChild(card_text)
+                        
+                        var card_footer=document.createElement('div')
+                     card_footer.className="card-footer text-muted";
+                        card_footer.id=response[i].cuisineId;
+                     	card_footer.innerHTML="Cuisine Name: "+response[i].cuisineName
+                     	card.appendChild(card_footer)
+                        
+                         var btn_updateitem = document.createElement('button');
+                        btn_updateitem.className='btn btn-primary'
+                        btn_updateitem.innerHTML="Update Item"
+                        // btn_updateitem.id="{'type':'U','cuisineId':"+response[i].cuisineId+",'itemId':"+response[i].itemDetailsList[j].itemId+response[i].itemDetailsList[j].itemName
+                        btn_updateitem.id='{"type":"U","cuisineId":'+response[i].cuisineId+',"itemId":'+response[i].itemDetailsList[j].itemId+',"itemName":"'+response[i].itemDetailsList[j].itemName+'","description":"'+response[i].itemDetailsList[j].description+'","price":"'+response[i].itemDetailsList[j].price+'"}'
+                        //btn_updateitem.id='{"type":"U","cuisineId":}
+                        test.appendChild(btn_updateitem);
+                        var btn_deleteitem = document.createElement('button');
+                        btn_deleteitem.id='{"type":"D","cuisineId":'+response[i].cuisineId+',"itemId":'+response[i].itemDetailsList[j].itemId+',"itemName":"'+response[i].itemDetailsList[j].itemName+'","description":"'+response[i].itemDetailsList[j].description+'","price":"'+response[i].itemDetailsList[j].price+'"}'
+                        btn_deleteitem.className='btn btn-danger';
+                        btn_deleteitem.innerHTML="Delete Item";
+                        btn_deleteitem.addEventListener("click",delete_item)
+                        test.appendChild(btn_deleteitem);
+                     }
+                // var card = document.createElement('div');
+                // card.className ='card';
+                // var card_header = document.createElement('div');
+                // card_header.className='card-header';
+                // card_header.innerHTML = response[i].cuisineName;
+                // test.append(card);
+                // card.appendChild(card_header);
+                // var card_text = document.createElement('div');
+                // card_text.className='card-body';
+                // card.appendChild(card_text);
+                // var btn_updatecuisine = document.createElement('button');
+                // btn_updatecuisine.className='btn btn-primary'
+                // btn_updatecuisine.innerHTML="Update Cuisine"
+                // btn_updatecuisine.id="U"+response[i].cuisineId+response[i].cuisineName
+                // test.appendChild(btn_updatecuisine);
+                // var btn_deletecuisine = document.createElement('button');
+                // btn_deletecuisine.id="D"+response[i].cuisineId+response[i].cuisineName
+                // btn_deletecuisine.className='btn btn-danger';
+                // btn_deletecuisine.innerHTML="Delete Cuisine";
+                // test.appendChild(btn_deletecuisine);
+                  }
+
+
+
+        }
+
+
+          //Function called during form Load. Gets current cuisines from the database
+        //Uncomment xhttp later
+         document.addEventListener("DOMContentLoaded", function(event) {
+            window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+
+		SendGetItemsByRestandCuisineRequest();
+
+      
+        });
+          function SendGetItemsByRestandCuisineRequest()
+          {
+        	  let restid = localStorage.getItem('restid');
+
+
+              //alert(restid)
+             // $('form').submit(false);
+              // let data={
+              //         "restid":restid
+              //             };
+              //     data = JSON.stringify(data);
+              let xhttp = new XMLHttpRequest();
+              let url = "http://localhost:8080/restaurant/"+restid+"/cuisine/getCuisinesAndItemsByRestID";
+              xhttp.open("GET", url, true);
+              xhttp.setRequestHeader("Content-type", "application/json");
+             xhttp.onreadystatechange = function() 
+              {
+                  if(this.readyState == 4 && this.status == 200) 
+                  {
+                      let response = xhttp.responseText;
+
+                      //fillUIHelper(xhttp.responseText);
+                      fillUIHelper(response);
+                      
+
+                  }
+              }
+              xhttp.send();
+          }
+        	  
+    </script>
+    </head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="restOwnerHome.html">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Order Food?</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="Profile.html">Edit Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="logout.html">Logout</a>
+      </li>
+
+  </ul>
+  </div>
+</nav>
+</br>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="container">
+            <h2>Add Menu Items</h2>
+                
+
+
+                <div class="form-group">
+                    <label for="cuisines">Select Cuisine:</label>
+                   <select class="form-control" id="cuisines"></select>
+
+                    </div>
+
+                <div class="form-group">
+                    <label for="itemname">Menu Item:</label>
+                  <input type="text" class="form-control" id="iditemname" placeholder="Enter item name" name="itemname" required="required">
+
+                </div>
+                <div class="form-group">
+                    <label for="itemdescr">Description:</label>
+                  <input type="text" class="form-control" id="iditemdescr" placeholder="Enter item description" name="itemdescr" required="required">
+
+                </div>
+                 <div class="form-group">
+                    <label for="itemprice">Price:</label>
+                  <input type="number" class="form-control" id="iditemprice" placeholder="Enter Price" maxlength="5" name="itemprice" required="required">
+
+                </div>
+    <button type="submit" class="btn btn-info" onclick="addUpdateItemOnClick()">Add Menu Item</button></br>
+        </div>
+    </div>
+    <div class="col-md-8" id="items">
+          <h2>Your Menu Items</h2>  
+    </div>
+    </div>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Food Delivery App</title>
+<script src="../js/userSpecificMenu.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+    .btn {
+    margin-right:5px;
+    margin-left:5px;
+    margin-bottom:5px;
+}
+.cuisine {
+
+}
+.item{
+
+}
+</style>
+
+<script> 
+    window.onload=function(){
+    var csn = document.getElementsByClassName('btn btn-primary');
+    var itm = document.getElementsByClassName('btn btn-success');
+    for(var i = 0; i < csn.length; i++) {
+    csn[i].addEventListener("click", cuisine_redirect);
+    itm[i].addEventListener("click", item_redirect);
+    }
+    
+}
+        function item_redirect()
+        {
+            localStorage.setItem('restid',this.id.substring(0,1));
+            var url="./manageItems.html";
+            window.location.href=url;
+            //print(this.restid.substring(0,1))
+           // var url = "./manageItems.html";
+           //window.location(url);
+        }
+            
+        function cuisine_redirect()
+        {
+            localStorage.setItem('restid',this.id.substring(0,1));
+            //localStorage.setItem('restid',restid);
+            //print(restid);
+            var url="./manageCuisines.html";
+            window.location.href=url;
+        }
+
+        document.addEventListener("DOMContentLoaded", function(event) {
+            window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+        let username = localStorage.getItem('username');
+       // $('form').submit(false);
+        let data={
+                "userName":username
+                    };
+            data = JSON.stringify(data);
+        //let xhttp = new XMLHttpRequest();
+        let url = "http://localhost:8080/restaurant/getRestaurantByUserName";
+        //xhttp.open("POST", url, true);
+        //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+            //if(this.readyState == 4 && this.status == 200) 
+            {
+                //let response = xhttp.responseText;
+                response='[{"restaurantId": 1,"userId": 3,"name": "Aaryas","city": "PA","zipCode": "15234"}, {"restaurantId": 3,"userId": 3,"name": "Pizza Hut","city": "Boston","zipCode": "45678"}]';
+                 response = JSON.parse(response);
+                 //alert(response[0].name)
+                 var test = document.getElementsByClassName("test")[0];
+                 var items = response.length;
+                 //alert(items)
+                 //alert(items.length)
+                for(var i = 0; i < items; i++) {
+                    //alert(i)
+                var card = document.createElement('div');
+                card.className ='card';
+                var card_header = document.createElement('div');
+                card_header.className='card-header';
+                card_header.innerHTML = response[i].name;
+                //alert(card_header.innerHTML)
+                test.append(card);
+                test.appendChild(card_header);
+                var card_text = document.createElement('div');
+                card_text.className='card-body';
+                card_text.innerHTML = response[i].city+" ,"+response[i].zipCode;
+                test.appendChild(card_text);
+                var btn_managecuisine = document.createElement('button');
+                btn_managecuisine.className='btn btn-primary'
+                //btn_createcuisine.margin="5;5;5;5"
+                btn_managecuisine.innerHTML="Manage Cuisines"
+                btn_managecuisine.id=response[i].restaurantId+"cuisine";
+                //alert(btn_managecuisine.id)
+
+                //var temp=document.getElementById(btn_managecuisine.id);
+                //temp.addEventListener("click",cuisine_redirect);
+                //temp.myParam=btn_managecuisine.id
+
+                //btn_createcuisine.onclick="cuisine_redirect(btn_createcuisine.id)";
+                test.appendChild(btn_managecuisine);
+                var btn_manageitem = document.createElement('button');
+                btn_manageitem.id=response[i].restaurantId+"item";
+                btn_manageitem.className='btn btn-success';
+                btn_manageitem.innerHTML="Manage Menu Items";
+                //btn_createitem.onclick="item_redirect(btn_createitem.id)";
+                test.appendChild(btn_manageitem);
+                //localStorage.setItem('restid',restid);
+            }
+
+
+
+
+               // if(response.code == 200) {
+                    //localStorage.setItem('rlid',response.data.rlid);
+                    
+
+
+                    //} else {
+                      //  alert(response.message);
+                    //}
+
+
+            }
+        }
+        //xhttp.send(data);
+        //let xhttp = new XMLHttpRequest();
+        let url2 = "http://localhost:8080/restaurant/getRestaurantsBySales/uname="+username;
+        //xhttp.open("GET", url, true);
+        //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+            //if(this.readyState == 4 && this.status == 200) 
+            {
+                //let response = xhttp.responseText;
+                response='[{"restaurantId": 501,"userId": 384, "name": "Hooters","city": "Pittsburgh","zipCode": 15209,"totalPrice": 1000},{"restaurantId": 502,"userId": 384,"name": "Primanti Bros","city": "Pittsburgh","zipCode": 12345,"totalPrice": 500}]';
+                response = JSON.parse(response);
+                 //alert(response[0].name)
+                 var sales = document.getElementById("sales");
+                 var items = response.length;
+                 var table=document.createElement('table')
+                table.className="table table-striped"
+                sales.appendChild(table);
+                var thead=document.createElement('thead');
+                table.appendChild(thead)
+                 var tr=document.createElement('tr');
+                 thead.appendChild(tr)
+                 var thhash=document.createElement('th')
+                 thhash.innerHTML="#"
+                 tr.appendChild(thhash)
+                 var thitem=document.createElement('th')
+                 thitem.innerHTML="Restaurants"
+                 tr.appendChild(thitem)
+                 var thprice=document.createElement('th')
+                 thprice.innerHTML="Sales ($)"
+                 tr.appendChild(thprice)
+                 var tbody=document.createElement('tbody')
+                 table.appendChild(tbody)
+
+
+                 for(var i = 0; i < items; i++) {
+
+                    //parsedStr=JSON.parse(coll[i].id)
+                    var tr=document.createElement('tr');
+                    tbody.appendChild(tr)
+                    var tdhash=document.createElement('td');
+                    tdhash.innerHTML=i+1
+                    tr.appendChild(tdhash)
+                    var tdrestaurant=document.createElement('td');
+                    tdrestaurant.innerHTML=response[i].name;
+                    tr.appendChild(tdrestaurant)
+                    var tdsales=document.createElement('td');
+                    tdsales.innerHTML=response[i].totalPrice;
+                    tr.appendChild(tdsales)
+
+                 }
+
+
+
+
+            }
+
+        }
+        //xhttp.send(data);
+
+           
+      });
+
+       // function addOnClick() {
+       //      let type_name = document.getElementById("select1").value;
+       //      let model = document.getElementById("select2").value;
+       //      let year = document.getElementById("select3").value;
+       //      if(type_name == "Choose" || model == "Choose" || year == "Choose"){
+       //          alert("Pleasse Select all values");
+       //      } else{
+       //          let data={
+       //          "model":model,
+       //          "year":year,
+       //          "rlid": localStorage.getItem('rlid')
+       //              };
+       //      data = JSON.stringify(data);
+       //  let xhttp = new XMLHttpRequest();
+       //  let url = "http://localhost:9000/api/manager/addcar";
+       //  xhttp.open("POST", url, true);
+       //  xhttp.setRequestHeader("Content-type", "application/json");
+       //  xhttp.onreadystatechange = function() {
+       //      if(this.readyState == 4 && this.status == 200) {
+       //          let response = xhttp.responseText;
+       //           response = JSON.parse(response);
+       //          if(response.code == 200) {
+       //              alert(response.message);
+ 
+       //              } else {
+       //                  alert(response.message);
+       //              }
+       //      }
+       //  }
+       //  xhttp.send(data);
+
+       //      }
+
+       // }
+
+</script>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Order Food?</a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="Profile.html">My Profile</a>
+      </li>
+      <li class="nav-item" id="userspecific">
+        <a class="nav-link" href="#"></a>
+      </li>
+      <li class="nav-item" id="userspecific_2">
+        <a class="nav-link" href="#">Logout</a>
+      </li>
+
+  </ul>
+  </div>
+</nav>
+</br>
+<div class="row">
+<div class="test col-sm-6">
+       <h3>Your Restaurants</h3> 
+   </div>
+   <div class="col-sm-3">
+   </div>
+   <div class="col-sm-3" id="sales">
+    <h3>Your Restaurants by Top Sales</h3> 
+   </div>
+</div>
+</body>
+
+</html>

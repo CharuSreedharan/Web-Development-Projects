@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+ 
+    <title>Food Delivery App</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script>
+	
+        function loginOnClick() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            
+            if(username==""||password=="")
+            	{
+            	alert("Please enter all values");
+            	}
+            else if(document.querySelector('input[name="usertype"]:checked') == null)
+            	{
+            	alert("User Type not selected");
+            	}
+            else
+            	{
+            	let usertype = parseInt(document.querySelector('input[name="usertype"]:checked').value);
+            	let url = "http://localhost:8080/validateunameandpassword";
+                let data={
+                    "userName":username,
+                    "password":password,
+                    "userType":usertype
+                };
+                data = JSON.stringify(data);
+                console.log(data)
+                let xhttp = new XMLHttpRequest();
+                xhttp.open("POST", url, true);
+                xhttp.setRequestHeader('Content-Type','application/json');
+                xhttp.onreadystatechange = function() {
+                    if(this.readyState == 4 && this.status == 200) {
+                        let response = xhttp.responseText;
+                        response = JSON.parse(response);
+                        if(response.userNameMessage=="Invalid Username")
+                        	{
+                        	alert(response.userNameMessage)
+                        	}
+                        else if(response.userNameMessage=="Invalid Password")
+                        	{
+                        	alert(response.userNameMessage)
+                        	}
+                        else if(response.userTypeMessage=="Invalid User Type")
+                        	{
+                        	alert(response.userTypeMessage)
+                        	}
+                        else
+                        	{
+                        	console.log(response)
+                            //alert(response);
+                            console.log("usertype: "+usertype)
+                           // if(response.code == 200) {
+                                if(usertype == 0){
+                                    localStorage.setItem('username',username);
+                                    localStorage.setItem('usertype',usertype);
+
+                                    window.location.href = "./userhomepage.html"; 
+                                } 
+
+                                if(usertype == 1){
+                                    localStorage.setItem('username',username);
+                                    localStorage.setItem('usertype',usertype);
+                                    window.location.href = "./restOwnerHome.html"; 
+
+                                }
+
+                                if(usertype == 2){
+                                  //  alert("admin page stii in progress");
+                                    window.location.href = "./adminhomepage.html"; 
+                                } 
+                                }
+                        
+
+                         //   window.location.href = "./forms.html";              //alert('Post created successfully');
+                        //  location.href="index.html"
+                        /* } else if(this.status != 200){
+                            alert(response.message);
+                        } */
+                    }
+                }
+                xhttp.send(data);
+            	}
+
+    
+            
+            
+        }   
+
+</script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</head>
+
+<body>
+
+ <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      
+  </ul>
+  </div>
+</nav>
+</br>
+
+
+<div class="row">
+<div class = "col-md-6">
+    <img src="../img/food_homepage_3.jpg" alt="Home Page" >
+    </div>
+   <div class = "col-md-6">
+    <div class="container">
+  <h2>Login</h2>
+ <!--  <form> -->
+    <div class="form-group">
+      <input type="text" class="form-control" id="username" placeholder="Enter username" name="uname" required="required">
+    </div>
+    <div class="form-group">
+      <label for="pwd">Password:</label>
+      <input type="password" class="form-control" id="password" placeholder="Enter password" name="pwd" required="required">
+    </div>
+    <div class="form-group">
+       <div class="radio" required="required">
+  <label><input type="radio" name="usertype" id="user" value="0">User</label>
+</div>
+<div class="radio">
+  <label><input type="radio" name="usertype" id="Owner" value="1">Restaurant Owner</label>
+</div>
+<div class="radio disabled">
+  <label><input type="radio" name="usertype" id="admin" value="2">Admin</label>
+</div>
+    </div>
+    <button type="submit" class="btn btn-info" onclick="loginOnClick()">Login</button></br>
+    <a href="register.html" role="">Not a member? Register here</a>
+<!-- </form> -->
+</div>
+   </div>
+</div> 
+  <!-- <div class = "col-md-6">
+    <img src="accounts/food_homepage_3.jpg" %}" alt="My image" >
+    </div> -->
+
+
+
+   
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+
+
+    <!-- Custom Theme JavaScript -->
+    
+
+    <script>
+        $(document).ready(function() {
+            localStorage.clear();
+        window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+    });
+    </script>    
+
+</body>
+
+</html>
