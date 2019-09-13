@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Food Delivery App</title>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+    .btn {
+    margin-right:5px;
+    margin-left:5px;
+    margin-bottom:5px;
+    margin-top:5px;
+}
+</style>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function(event) {
+            window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+        SendSelectReviewRequest()
+
+     });
+
+
+    window.onload=function(){
+    //var updt = document.getElementsByClassName('btn btn-primary');
+    var del = document.getElementsByClassName('btn btn-danger');
+    for(var i = 0; i < del.length; i++) {
+    //updt[i].addEventListener("click", update_cuisine);
+    del[i].addEventListener("click", delete_review);
+    }};
+
+
+    function delete_review()
+    {
+        if (confirm('Are you sure you want to delete this review?')) {
+            let xhttp = new XMLHttpRequest();
+            //alert(this.id)
+        let url = "http://localhost:8080/review/deleteReview/id="+this.id; 
+        xhttp.open("DELETE", url, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+       xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                    SendSelectReviewRequest()
+
+                }
+
+
+            }
+         xhttp.send();
+        }
+    }
+
+    function SendSelectReviewRequest()
+    {
+        let username = localStorage.getItem('username');
+        let xhttp2 = new XMLHttpRequest();
+        let url2 = "http://localhost:8080/restaurant/getAllRestaurants";
+        xhttp2.open("GET", url2, true);
+        xhttp2.setRequestHeader("Content-type", "application/json");
+        xhttp2.onreadystatechange = function() 
+        {
+      	  if(this.readyState == 4 && this.status == 200) 
+      		  {
+      		  let response = xhttp2.responseText;
+      		  //alert(response);
+      		fillUIHelperRestDropdown(response)
+      		  }
+      	  
+        }
+        xhttp2.send();
+        
+        
+        let xhttp = new XMLHttpRequest();
+        let url = "http://localhost:8080/review/getReviewsByUserName/uname="+username;
+        xhttp.open("GET", url, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.onreadystatechange = function() 
+        {
+            if(this.readyState == 4 && this.status == 200) 
+            {
+                    let response = xhttp.responseText;
+                    fillUIHelper(response)
+            }
+        }
+        xhttp.send();
+        
+        
+        
+     
+      
+    }
+    function fillUIHelperRestDropdown(response)
+    {
+    	//alert("fillUIHelperRestDropdown");
+    	response = JSON.parse(response);
+    	var rest_dropdown=document.getElementById("idrest");
+       let defaultOption = document.createElement('option');
+      defaultOption.text = 'Choose Restaurant';
+      rest_dropdown.length = 0;
+      //let defaultOption = document.createElement('option');
+     // defaultOption.text = 'Choose Cuisine';
+      rest_dropdown.add(defaultOption);
+      var items = response.length;
+      //alert(items)
+      for(var i = 0; i< items; i++) {
+    	  //Bind Dropdown
+          option = document.createElement('option');
+          option.text = response[i].name;
+          option.value = response[i].restaurantId;
+          //alert(option.value)
+          rest_dropdown.add(option);
+    	  
+      }
+    	
+    }
+
+    function fillUIHelper(response)
+    {
+        response = JSON.parse(response);
+                 //alert(response[0].name)
+                 var review = document.getElementById("review");
+                 review.innerHTML="";
+                  
+                 var items = response.length;
+                 for(var i = 0; i< items; i++) {
+
+                    //Bind Dropdown
+
+                    //Bind Card
+                    var card = document.createElement('div');
+                    card.className ='card';
+                    var card_header = document.createElement('div');
+                    card_header.className='card-header';
+                    card_header.innerHTML = "Restaurant: "+response[i].restaurantName+"  ";
+                    review.appendChild(card)
+                    card.appendChild(card_header);
+                     var card_text=document.createElement('div');
+                    card_text.className='card-body'
+                    card_text.innerHTML="Stars: "+response[i].stars+"</br>"+"Description: "+response[i].description;
+                    card.appendChild(card_text)
+
+                    var btn_deletereview = document.createElement('button');
+                    btn_deletereview.className='btn btn-danger'
+                    btn_deletereview.innerHTML="Delete Review";
+                    btn_deletereview.id=response[i].reviewId
+                    btn_deletereview.addEventListener("click",delete_review)
+                    //btn_deletereview.onclick="delete_review()"
+                    review.appendChild(btn_deletereview)
+
+                }
+
+    }
+
+    function addReviewOnClick()
+    {
+    	//alert(document.getElementById("idrest").value)
+    	if(document.getElementById("idrest").value=="Choose Restaurant")
+    		{
+    		alert("Please select Restaurant!")
+    		}
+    	if(idstars.value>10)
+    		{
+    		alert("Please enter valid rating!")
+    		}
+    	else
+    		{
+    		 let username = localStorage.getItem('username');
+    	        let xhttp = new XMLHttpRequest();
+
+    	        var el_stars=document.getElementById("idstars").value;
+    	        var el_descr=document.getElementById("iddescription").value;
+    	        var ddl_restid=document.getElementById("idrest").value;
+    	        //alert(ddl_restid);
+    	        let data={
+    	                            "userName":username,
+    	                            "restaurantId":parseInt(ddl_restid),
+    	                            "stars":parseInt(el_stars),
+    	                            "description":el_descr
+    	                        };
+
+    	        data = JSON.stringify(data);
+    	        let url="http://localhost:8080/review/createReview";
+    	         xhttp.open("POST", url, true);
+    	            xhttp.setRequestHeader("Content-type", "application/json");
+    	            xhttp.onreadystatechange = function() 
+    	            {
+    	                    if(this.readyState == 4 && this.status == 200) 
+    	                     {
+    	                    	//alert("I was here")
+    	                     SendSelectReviewRequest()
+    	                     }
+    	            }
+    	            xhttp.send(data);
+    	            
+    	            idstars.value=""
+    	            	iddescription.value=""
+    		}
+       
+
+    }
+
+
+    
+</script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="userhomepage.html">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Order Food?</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="usercart.html">View Cart</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="pastOrders.html">Past Orders</a>
+      </li>
+       <li class="nav-item active">
+        <a class="nav-link" href="#">View Reviews</a>
+      </li>
+
+       <li class="nav-item">
+        <a class="nav-link" href="Profile.html">My Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Logout</a>
+      </li>
+
+  </ul>
+  </div>
+</nav>
+</br>
+<div class="row">
+    <div class="col-md-6">
+        <div class="container">
+            <h2>Create Review</h2>
+            <div class="form-group">
+                    <label for="rest">Select Restaurant:</label>
+                   <select class="form-control" id="idrest"></select>
+
+                    </div>
+            <div class="form-group">
+        <label for="stars">Stars:</label>
+      <input type="number" class="form-control" id="idstars" name="stars" min=1 max=10 maxLength="2">
+    </div>
+     <div class="form-group">
+        <label for="descr">Description:</label>
+      <input type="text" class="form-control" id="iddescription" name="descr">
+    </div>
+    <button type="submit" class="btn btn-info" onclick="addReviewOnClick()">Create Review</button></br>
+            </div>
+        </div>
+            <div class="col-md-6" id="review">
+                <h2>Your Reviews</h2> 
+
+    </div>
+</div>
+
+
+</body>

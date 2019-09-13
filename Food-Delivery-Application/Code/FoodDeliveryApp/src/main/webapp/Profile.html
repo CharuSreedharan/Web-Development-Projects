@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Food Delivery App</title>
+    <style>.test{}
+    </style>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script type="text/javascript">
+	var g_id=null;
+
+	 function updateOnClick() {
+		 //let user = localStorage.getItem('username');
+             // let license_no = document.getElementById("license").value;
+             // let name = document.getElementById("Name").value;
+             // let emailId = document.getElementById("inputEmail").value;
+             // let zip = document.getElementById("zipcode").value;
+             // let password = document.getElementById("inputPassword").value;
+             // let street = document.getElementById("street").value;
+				let uname=document.getElementById("idusername").value;
+                let email=document.getElementById("idemail").value;
+                let password=document.getElementById("idpassword").value;
+                let fullname=document.getElementById("idfullname").value;
+                //let address=document.getElementById("idaddress").value;
+                let contactnum=document.getElementById("idcontactnum").value;
+                let zip=document.getElementById("idzip").value;
+                let usertype = document.querySelector('input[name="usertype"]:checked').id.substring(1);
+               let addressid=document.getElementsByClassName("test")[0].id;
+               let address=document.getElementsByClassName("test")[0].value;
+                if(document.querySelector('input[name="subscrtype"]:checked')!=null)
+           	 {
+           	 memberType=document.querySelector('input[name="subscrtype"]:checked').value;
+           	 }
+            else
+           	 {
+           	 memberType=null;
+           	 }
+               // let memberType = document.querySelector('input[name="subscrtype"]:checked').value;
+
+             if(zip == "" || uname == "" || email == "" || password == "" || address == "" || contactnum == ""){
+                 alert("Please Enter all values");
+             } else{
+                 let data={
+                 "password":password,
+                 "fullName": fullname,
+                 "password":password,
+                 "memberType":memberType,
+                 "userType":usertype,
+                 "email":email,
+                 "contactNumber":contactnum,
+                 "addressDetails":
+                 {
+                	 "addressId":addressid,
+                    "address":address,
+                    "zipCode":zip
+                 }
+                     };
+             data = JSON.stringify(data);
+         let xhttp = new XMLHttpRequest();
+         let url = "http://localhost:8080/user/updateUserDetails/userName="+uname;
+         xhttp.open("PUT", url, true);
+         xhttp.setRequestHeader("Content-type", "application/json");
+         xhttp.onreadystatechange = function() {
+             if(this.readyState == 4 && this.status == 200) {
+                 //let response = xhttp.responseText;
+                  //response = JSON.parse(response);
+                 //if(response.code == 200) {
+                     alert("Profile Details updated successfully");
+                     //window.location.href = "./index.html"; 
+                    // } else {
+                        
+                   //  }
+             }
+             else if(this.status != 200){
+            	 alert("Something is wrong. Please retry...")
+             }
+            	 
+         }
+         xhttp.send(data);
+ 
+             }
+ 
+        }
+
+
+
+	 document.addEventListener("DOMContentLoaded", function(event) {
+            window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+        let username = localStorage.getItem('username');
+        let url="http://localhost:8080/user/getUserDetails/userName="+username;
+        console.log(url);
+        let xhttp = new XMLHttpRequest();
+         xhttp.open("GET", url, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.onreadystatechange = function() 
+         {
+            if(this.readyState == 4 && this.status == 200) 
+            {
+            	
+            	let response = xhttp.responseText;
+            	//response='{"userId":1,"userName": "Charu","password": "chs263","fullName": "Charu Sreedharan","memberType": 2,"userType": 2,"email": "chs263@pitt.edu","contactNumber": "4127087401", "addressDetails": {"addressId": 101,"address": "6345 Street #1","zipCode": 15000},"loginStatus": 0}'
+            	response = JSON.parse(response);
+            	console.log(response);
+            	//alert(response.)
+            	g_id=response.userId;
+            	var uname_text=document.getElementById("idusername");
+            	uname_text.value=response.userName
+            	var fullname_text=document.getElementById("idfullname");
+            	fullname_text.value=response.fullName
+
+            	var user_dropdown=document.getElementById("U"+response.userType)
+            	user_dropdown.checked=true
+            	user_dropdown.disabled=true
+            	if(response.userType==1)
+            		{
+            		//alert("Hey")
+            		//alert(document.getElementById("sub")[0].innerHTML);
+            		document.getElementById("sub").style.visibility="hidden";
+            		}
+            	else
+            		{
+            		var member_dropdown=document.getElementById("S"+response.memberType)
+            		}
+            	
+            	var email_text=document.getElementById("idemail")
+            	email_text.value=response.email
+            	var pwd_text=document.getElementById("idpassword")
+            	pwd_text.value=response.password
+            	var contact_text=document.getElementById("idcontactnum")
+            	//alert(response.contactNumber);
+            	document.getElementById("idcontactnum").value=response.contactNumber
+            	//alert(contact_text.value)
+            	var address_text=document.getElementById("idaddress")
+            	var address_id=document.getElementById("id_Add")
+            	address_text.id=response.addressDetails.addressId;
+            	address_text.value=response.addressDetails.address
+            	var zip_text=document.getElementById("idzip")
+            	zip_text.value=response.addressDetails.zipCode
+            }
+        }
+        xhttp.send();
+         });
+
+</script>
+	</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Order Food?</a>
+      </li>
+      
+       <li class="nav-item">
+        <a class="nav-link" href="usercart.html">View Cart</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="pastOrders.html">Past Orders</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="review.html">Write a Review</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="Profile.html">My Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="logout.html">Logout</a>
+      </li>
+
+  </ul>
+  </div>
+</nav>
+</br>
+<div class="col-sm-6" id=profile>
+       	<h3>Your account</h3>
+       				<div class="form-group">
+       				<label for="username">Username:</label>
+                  <input type="text" class="form-control" id="idusername" placeholder="Enter full name" name="username" readonly>
+                                      </div> 
+                    <div class="form-group">
+                    <label for="fullname">Full Name:</label>
+                  <input type="text" class="form-control" id="idfullname" placeholder="Enter full name" name="fullname" required="required">
+              </div>
+               <div class="form-group" id="sub">
+		        <label for="subscrtype">Subscription Type:</label>
+		       		<div class="radio" required="required">
+		  		<label><input type="radio" name="subscrtype" id="S0" value="Normal" >Normal</label>
+				</div>
+				<div class="radio">
+			  	<label><input type="radio" name="subscrtype" id="S1" value="Silver">Silver</label>
+				</div>
+				<div class="radio">
+			  		<label><input type="radio" name="subscrtype" id="S2" value="Gold">Gold</label>
+				</div>
+			</div>
+			 <div class="form-group">
+	            <label for="usertype">User Type:</label>
+				       <div class="radio" required="required">
+				  <label><input type="radio" name="usertype" id="U0" value="User" >User</label>
+						</div>
+					<div class="radio">
+				  <label><input type="radio" name="usertype" id="U1" value="Restaurant Owner" >Restaurant Owner</label>
+					</div>
+				<div class="radio disabled">
+				  <label><input type="radio" name="usertype" id="U2"  value="Admin" >Admin</label>
+				</div>
+			</div>
+
+
+
+				 <div class="form-group">
+                  <label for="email">Email id:</label>
+                  <input type="email" class="form-control" id="idemail" placeholder="Enter email id" name="email" required="required">
+              </div>
+
+              	 <div class="form-group">
+
+                  <label for="password">Password:</label>
+                  <input type="password" class="form-control" id="idpassword" placeholder="Enter email id" name="password" required="required">
+              </div>
+
+
+              	 <div class="form-group">
+                  <label for="contact">Contact No:</label>
+                  <input type="text" class="form-control" id="idcontactnum" placeholder="Enter Contactnumber" name="contact" required="required" maxlength="10">
+              </div>
+
+
+              	 <div class="form-group">
+                  <label for="address" id=id_Add>Address:</label>
+                  <input type="text" class="form-control test" id="idaddress" placeholder="Enter address" name="address" required="required">
+              </div>
+
+              	 <div class="form-group">
+
+                  <label for="zip">Zipcode:</label>
+                  <input type="text" class="form-control" id="idzip" placeholder="Enter zip" name="zip" required="required" maxlength="5">
+              </div>
+              <button type="submit" class="btn btn-info" onclick="updateOnClick()">Update Details</button></br>
+   </div>
+</body>
+</html>

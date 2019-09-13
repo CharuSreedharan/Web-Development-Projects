@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Food Delivery App</title>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="../js/userSpecificMenu.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+    .btn {
+    margin-right:5px;
+    margin-left:5px;
+    margin-bottom:5px;
+    margin-top:5px;
+}
+#hide
+{
+    left: 0px; 
+   right: 0px; 
+   top: 0px; 
+   bottom: 0px;
+   display: none; 
+}
+
+</style>
+<script>
+    var order_hashmap={}
+    document.addEventListener("DOMContentLoaded", function(event) {
+            window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+        var text = window.location.hash.substring(1);
+        if(text=='Y')
+        {
+            let response=localStorage.getItem('data')
+
+        }
+        else
+        {        
+            let username = localStorage.getItem('username');
+        let xhttp = new XMLHttpRequest();
+        let url = "http://localhost:8080/cart/viewCartByUserName/username="+username;
+        //xhttp.open("POST", url, true);
+        //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+            //if(this.readyState == 4 && this.status == 200) 
+            {
+                    //let response = xhttp.responseText;
+                response='[{"suborderId": 2,"userId": 2,"restaurantId": 5,"cuisineId": 7,"itemId": 36,"quantity": 5,"totalPrice": 100,"spiceLevel": 5,"comment": "Good"},{"suborderId": 3,"userId": 2,"restaurantId": 5,"cuisineId": 7,"itemId": 37,"quantity": 5,"totalPrice": 100,"spiceLevel": 5,"comment": "Good"}]'
+                //let response = xhttp.responseText;
+            }
+        }
+        //xhttp.send(data);
+    }
+    
+    response = JSON.parse(response);
+    var cart = document.getElementById("cart");
+    var items = response.length;
+    arr_suborder=[]
+    for(var i = 0; i < items; i++) {
+        order_hashmap['restaurantId']=response[i].restaurantId
+         arr_suborder[i]='{"suborderId":'+response[i].suborderId+',"totalPrice":'+response[i].totalPrice+'}'   
+        var card = document.createElement('div');
+                card.className ='card';
+                var card_header = document.createElement('div');
+                card_header.className='card-header';
+                card_header.innerHTML = response[i].itemId+" $"+response[i].totalPrice;
+                //alert(card_header.innerHTML)
+                cart.append(card);
+                card.appendChild(card_header);
+                var card_text = document.createElement('div');
+                card_text.id=i
+                card_text.className='card-body';
+                card_text.innerHTML = "Quantity: "+response[i].quantity+"<br /> Spice Level: "+response[i].spiceLevel+"<br /> Comment: "+response[i].comment;
+                card.appendChild(card_text);
+                var btn_editcartitem = document.createElement('button');
+                btn_editcartitem.className='btn btn-primary'
+                //btn_createcuisine.margin="5;5;5;5"
+                btn_editcartitem.innerHTML="Edit Cart item"
+                btn_editcartitem.id='{"suborderId":'+response[i].suborderId+',"divId":'+i+',"itemId":'+response[i].itemId+',"quantity":"'+response[i].quantity+'","spiceLevel":"'+response[i].spiceLevel+'","comment":"'+response[i].comment+'","totalPrice":"'+response[i].totalPrice+'"}';
+                btn_editcartitem.addEventListener("click",open_modal)
+                btn_editcartitem.setAttribute('data-toggle', 'modal');
+                btn_editcartitem.setAttribute('data-target', '#myModal');
+                cart.appendChild(btn_editcartitem)
+  
+
+    }
+    order_hashmap['suborderDetailsVO']=arr_suborder
+    let username = localStorage.getItem('username');
+    order_hashmap['username']=username
+
+    // var btn_checkout=document.createElement('button');
+    // btn_checkout.className='btn btn-success'
+    //             //btn_createcuisine.margin="5;5;5;5"
+    //             btn_checkout.innerHTML="Proceed to checkout!"
+    //             //btn_editcartitem.id=response[i].restaurantId+"cuisine";
+    //             cart.appendChild(btn_checkout)
+
+
+
+    });
+
+    //  window.onload=function(){
+    // var updt = document.getElementsByClassName('btn btn-primary');
+    // for(var i = 0; i < updt.length; i++) {
+    // updt[i].addEventListener("click", update_cart);
+    // }
+
+    function open_modal()
+    {
+        response=JSON.parse(this.id)
+        store_divid=document.getElementsByTagName('p')[0]
+      idqty.value=response.quantity;
+      idspicelvl.value=response.spiceLevel;
+      idcomment.value=response.comment;
+      store_divid.id=response.divId
+
+  }
+  function updateCartItem()
+  {
+    //alert(store)
+    div=document.getElementById(store_divid.id)
+    div.innerHTML = "Quantity: "+idqty.value+"<br /> Spice Level: "+idspicelvl.value+"<br /> Comment: "+idcomment.value;
+  }
+
+  function delete_cart()
+  {
+    var itemid=null;
+    listsuborderId=[]
+     if (confirm('Are you sure you want to delete this cart?')) {
+        var coll = document.getElementsByClassName('btn btn-primary');
+
+        for(var i = 0; i < coll.length; i++) {
+
+            //alert(coll[i])    
+            parsedStr=JSON.parse(coll[i].id)
+            itemid=parsedStr['itemId'];
+            let data={"id":parsedStr['suborderId']};
+            //alert(data)
+            //data = JSON.stringify(data);
+            //alert(data)
+            listsuborderId[i]=data
+
+        }
+        console.log(listsuborderId)
+
+        let xhttp = new XMLHttpRequest();
+        let url = "http://localhost:8080/items/deleteItem/itemID="+itemid; 
+        xhttp.open("POST", url, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+       //  xhttp.onreadystatechange = function() {
+       //      if(this.readyState == 4 && this.status == 200) {
+       //          let response = xhttp.responseText;
+       //           response = JSON.parse(response);
+       //          if(response.code == 200) {
+       //              alert(response.message);
+ 
+       //              } else {
+       //                  alert(response.message);
+       //              }
+       //      }
+       //  }
+       //  xhttp.send(data);
+
+
+
+     }
+
+  }
+
+  function review()
+  {
+    document.getElementById('items').innerHTML = "";
+    var review = document.getElementById("review");
+    var coll = document.getElementsByClassName('btn btn-primary');
+    var h3=document.createElement('h3')
+    h3.innerHTML="Order Review"
+    review.appendChild(h3)
+    var table=document.createElement('table')
+        table.className="table table-striped"
+        review.appendChild(table)
+        var thead=document.createElement('thead');
+        table.appendChild(thead)
+         var tr=document.createElement('tr');
+         thead.appendChild(tr)
+         var thhash=document.createElement('th')
+         thhash.innerHTML="#"
+         tr.appendChild(thhash)
+         var thitem=document.createElement('th')
+         thitem.innerHTML="Item"
+         tr.appendChild(thitem)
+         var thprice=document.createElement('th')
+         thprice.innerHTML="Price"
+         tr.appendChild(thprice)
+         var tbody=document.createElement('tbody')
+         table.appendChild(tbody)
+         var sum=0.0
+    for(var i = 0; i < coll.length; i++) {
+        //sum=sum+parseFloat(coll[i].totalPrice)
+        parsedStr=JSON.parse(coll[i].id)
+        var tr=document.createElement('tr');
+        tbody.appendChild(tr)
+        var tdhash=document.createElement('td');
+        tdhash.innerHTML=i+1
+        tr.appendChild(tdhash)
+        var tditem=document.createElement('td');
+        tditem.innerHTML=parsedStr['itemId'];
+        tr.appendChild(tditem)
+        var tdprice=document.createElement('td');
+        tdprice.innerHTML=parsedStr['totalPrice'];
+        sum+=parseFloat(parsedStr['totalPrice'])
+        tr.appendChild(tdprice)
+
+        
+
+
+    }
+    var tfooter=document.createElement('tfoot')
+    table.appendChild(tfooter)
+    var tr=document.createElement('tr')
+    tfooter.appendChild(tr)
+    var tddash=document.createElement('td')
+    tr.appendChild(tddash)
+    var tsum=document.createElement('td')
+    tsum.innerHTML="Total"
+    tr.appendChild(tsum)
+    var tsumval=document.createElement('td')
+    tsumval.innerHTML=sum
+    tr.appendChild(tsumval)
+    var btn_order=document.createElement('button');
+        btn_order.className='btn btn-info'
+        btn_order.innerHTML="Proceed!"
+        //btn_order.addEventListener("click",open_modal_delivery)
+        btn_order.setAttribute('data-toggle', 'modal');
+        btn_order.setAttribute('data-target', '#delivery');
+
+        review.appendChild(btn_order);
+
+
+
+
+
+  }
+function createOrder()
+{
+    console.log(order_hashmap)
+    var address=document.getElementById('idaddress').value
+    var zip=document.getElementById('idzip').value
+
+    data={"address":address,
+            "zipCode":zip};
+    data=JSON.stringify(data);
+
+    order_hashmap['deliveryAddressDetails']=data
+    console.log(order_hashmap)
+    //let xhttp = new XMLHttpRequest();
+        //let url = "http://localhost:8080/order/createOrder;
+        //xhttp.open("GET", url, true);
+        //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+            //if(this.readyState == 4 && this.status == 200) 
+            {
+                //let response = xhttp.responseText;
+                 if(response.code == 200) {
+                     //alert(response.message);
+                     // window.location.href = "./index.html"; 
+                     } else {
+                        // alert(response.message);
+                     }
+            }
+        }
+         //xhttp.send(data);
+
+
+};
+
+</script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Order Food?</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">View Cart</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="pastOrders.html">Past Orders</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="#">My Profile</a>
+      </li>
+      <li class="nav-item" id="userspecific">
+        <a class="nav-link" href="#"></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Logout</a>
+      </li>
+
+  </ul>
+  </div>
+</nav>
+</br>
+<div class="row">
+    <div class="col-sm-6" id="cart">
+       <h3>My Cart</h3>
+   </div>
+   <div class="col-sm-6" id="review">
+   </div>
+</div>
+</br></br>
+<div class="row">
+<div class="col-sm-6" id="items">
+     <button type="submit" class="btn btn-success" onclick="review()">Proceed to checkout!</button>
+      <button type="submit" class="btn btn-danger" onclick="delete_cart()">Delete cart</button></br>
+    </div>
+</div>
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+      <!-- Modal content-->
+      <div class="modal-content">
+        
+        <div class="modal-body">
+            <p></p>
+            <label for="qty">Quantity:</label>
+            <input type="number" name="qty"class="form-control input-number" id="idqty" min="1">
+              <label for="spicelevel">Spice Level:</label>
+            <input type="number" name="spicelvl" id="idspicelvl"class="form-control input-number" min="1" max="10">
+
+            <label for="comment">Comments:</label>
+            <input type="text" name="comment" id="idcomment" class="form-control" id="idqty" required="false">
+        </div>
+
+
+
+        <div class="modal-footer">
+
+
+            <button type="submit" class="btn btn-info" id="idupdtcartItm" data-dismiss="modal" onclick="updateCartItem()">Update Cart item</button></br>
+        </div>
+        </div>
+      </div>
+  </div>
+
+      <div id="delivery" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+       <label for="qty">Delviery address:</label>
+            <input type="text" name="idzip"class="form-control" id="idaddress" min="1">
+              <label for="idzip">Zipcode:</label>
+            <input type="text" name="spicelvl" id="idzip"class="form-control input-number">
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-info" id="idordr" data-dismiss="modal" onclick="createOrder()">Create Order</button></br>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Food Delivery App</title>
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	 <style>
+         .btn {
+    margin-right:5px;
+    margin-left:5px;
+    margin-bottom:5px;
+    margin-top:5px
+
+}
+</style>
+    <!-- Bootstrap Core CSS -->
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+   //var lst_cuisines=[]
+
+        //Common helper function to fill UI
+        function fillUIHelper(response)
+        {
+        	
+            //response='[{"cuisineId":4,"cuisineName": "Continental"},{"cuisineId":5,"cuisineName": "Indian"},{"cuisineId":6,"cuisineName": "English"}]';
+                response = JSON.parse(response);
+                console.log(response)
+                 //alert(response[0].name)
+                 var test = document.getElementsByClassName("cuisine")[0];
+                test.innerHTML=""
+                 var items = response.length;
+                 for(var i = 0; i < items; i++) 
+                 {
+                var card = document.createElement('div');
+                card.className ='card';
+                var card_header = document.createElement('div');
+                card_header.className='card-header';
+                card_header.innerHTML = response[i].cuisineName;
+                test.append(card);
+                card.appendChild(card_header);
+                var card_text = document.createElement('div');
+                card_text.className='card-body';
+                card.appendChild(card_text);
+                //var btn_updatecuisine = document.createElement('button');
+                //btn_updatecuisine.className='btn btn-primary'
+                //btn_updatecuisine.innerHTML="Update Cuisine"
+                //btn_updatecuisine.id="U"+response[i].cuisineId+response[i].cuisineName
+
+                //btn_updatecuisine.id='{"type":"U","cuisineId":'+response[i].cuisineId+',"cuisineName":"'+response[i].cuisineName+'"}'
+                //test.appendChild(btn_updatecuisine);
+                var btn_deletecuisine = document.createElement('button');
+                //btn_deletecuisine.id="D"+response[i].cuisineId+response[i].cuisineName
+                btn_deletecuisine.id='{"type":"D","cuisineId":'+response[i].cuisineId+',"cuisineName":"'+response[i].cuisineName+'"}'
+                btn_deletecuisine.className='btn btn-danger';
+                btn_deletecuisine.innerHTML="Delete Cuisine";
+                btn_deletecuisine.addEventListener("click",delete_cuisine)
+                //btn_deletecuisine.onclick="delete_cuisine()";
+                test.appendChild(btn_deletecuisine);
+                 }
+
+        }
+
+        //Insert/Update Cuisines to database
+
+        function addUpdateCuisineOnClick()
+        {
+        	//alert(idcuisinename.value)
+			if(idcuisinename.value=="")
+				{
+				alert("Please enter cuisine name!")
+				}
+			else
+				{
+				 let xhttp = new XMLHttpRequest();
+		            //alert(document.getElementById("addcuisine").innerHTML);
+		            //Add Cuisine
+		            if (document.getElementById("addcuisine").innerHTML=="Add Cuisine")
+		            {
+		                var el_cuisine=document.getElementById("idcuisinename").value
+		                let data={
+		                            "cuisineName":el_cuisine
+		                        };
+		            data = JSON.stringify(data);
+		            var id=parseInt(localStorage.getItem('restid'));
+		            console.log(data);
+		                let url = "http://localhost:8080/restaurant/"+id+"/cuisine/addCuisine";
+		             xhttp.open("POST", url, true);
+		             //alert("Opened");
+		            xhttp.setRequestHeader("Content-type", "application/json");
+		            xhttp.onreadystatechange = function() 
+		            {
+		            	 if(this.readyState == 4 && this.status == 200) 
+		            		 {
+		            		 let response = xhttp.responseText;
+		            		 alert("Cuisine added Successfully!")
+		            		 //response = JSON.parse(response);
+		                     SendSelectCuisinesByRestRequest();
+		                  	 }
+		            	 else if(this.readyState == 4 && this.status != 200){
+				            	alert("Cuisine not added. Please retry!!!");
+				            }
+
+		            }	
+		            
+		            xhttp.send(data);
+
+		            }
+
+		            //Update Cuisine condition
+		            else
+		            {
+		                let url = "http://localhost:8080/cuisine/updateCuisine/cuisineID="+this.id.cuisineID;
+		                xhttp.open("PUT", url, true);
+		                xhttp.setRequestHeader("Content-type", "application/json");
+		                xhttp.onreadystatechange = function() 
+		            {
+		                if(this.readyState == 4 && this.status == 200) 
+		                {
+		                	let response = xhttp.responseText;
+		                    fillUIHelper(response);
+		                }
+
+		            }
+		            xhttp.send();
+
+		            }
+				
+				}
+           
+
+        }
+
+        //Transfer information from card to form
+
+         function update_cuisine()
+        {
+            parsed_str=JSON.parse(this.id);
+            //alert("Hello")
+            var el_cuisine=document.getElementById("idcuisinename")
+            var btn_cuisine=document.getElementsByClassName("btn btn-info")[0]
+            //alert(this.parentElement.getElementsByClassName("card-header")[1].innerHTML)
+           el_cuisine.value=this.id.cuisineName;
+           btn_cuisine.innerHTML="Update Cuisine";
+           btn_cuisine.id=parsed_str
+            
+
+        }
+
+        function delete_cuisine()
+        {
+        	//alert("Hello")
+            if (confirm('Are you sure you want to delete this cuisine?')) {
+
+                var parsedStr=JSON.parse(this.id);
+                cuid=parseInt(parsedStr.cuisineId);
+                let xhttp = new XMLHttpRequest();
+        let url = "http://localhost:8080/cuisine/deleteCuisine/cuisineID="+cuid
+        xhttp.open("DELETE", url, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.onreadystatechange = function()
+        {
+            if(this.readyState == 4 && this.status == 200)
+            {
+            	alert("Cuisine Deleted Successfully!")
+
+            	SendSelectCuisinesByRestRequest();
+            }
+
+        }
+        xhttp.send()
+
+                } 
+
+        }
+
+        //Assign event handler to every button. This method gets called once the entire form is loaded
+
+         window.onload=function(){
+   // var updt = document.getElementsByClassName('btn btn-primary');
+    var del = document.getElementsByClassName('btn btn-danger');
+    for(var i = 0; i < del.length; i++) {
+    //updt[i].addEventListener("click", update_cuisine);
+    del[i].addEventListener("click", delete_cuisine);
+    }}
+
+        //Function called during form Load. Gets current cuisines from the database
+        //Uncomment xhttp later
+         document.addEventListener("DOMContentLoaded", function(event) {
+            window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+
+        SendSelectCuisinesByRestRequest();
+
+        });
+        
+        function SendSelectCuisinesByRestRequest()
+        {
+        	   let restid = localStorage.getItem('restid');
+
+               //alert(restid)
+              // $('form').submit(false);
+               // let data={
+               //         "restid":restid
+               //             };
+               //     data = JSON.stringify(data);
+               let xhttp = new XMLHttpRequest();
+              let url = "http://localhost:8080/restaurant/"+restid+"/cuisine/getCuisine";
+               xhttp.open("GET", url, true);
+               xhttp.setRequestHeader("Content-type", "application/json");
+               xhttp.onreadystatechange = function() 
+               {
+                   if(this.readyState == 4 && this.status == 200) 
+                   {
+                       let response = xhttp.responseText;
+
+                       fillUIHelper(response);
+                       
+
+                   }
+               }
+               xhttp.send();
+        }
+    </script>
+    <style>
+         .btn {
+    margin-right:5px;
+    margin-left:15px;
+    margin-bottom:5px;
+
+}
+</style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+         <a class="nav-link" href="restOwnerHome.html">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Order Food?</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="profile.html">Edit Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="logout.html">Logout</a>
+      </li>
+
+  </ul>
+  </div>
+</nav>
+</br>
+<div class="row">
+    <div class="col-md-6">
+        <div class="container">
+            <h2>Add Cuisine</h2>
+                <div class="form-group">
+        <label for="cuisinename">Cuisine:</label>
+      <input type="text" class="form-control" id="idcuisinename" placeholder="Enter cuisine name" name="cuisinename" required>
+
+    </div>
+    <button type="submit" class="btn btn-info" id="addcuisine" onclick="addUpdateCuisineOnClick()">Add Cuisine</button></br>
+        </div>
+    </div>
+    <div class="col-md-6 cuisine">
+          <h2>Your Cuisines</h2>  
+    </div>
+    </div>
+
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+<!--date validation scripts-->
+    <script>
+
+//      if (top.location != location) {
+//     top.location.href = document.location.href;
+//   }
+//   $(function() {
+//     window.prettyPrint && prettyPrint();
+//     var currDate = new Date();
+//     $('#dp1').datepicker({
+
+//         autoclose:true,
+
+//     todayHighlight:'TRUE',
+//     startDate: currDate
+    
+    
+//     });
+// })
+
+ 
+
+
+// $(function() {
+// $(document).ready(function(){
+
+// // Updated code below
+//   function updateMinimumEndDate () {
+//     var minimum = $('#dp1').val();
+//     var minSplit = [];
+
+//     $('#dp2').datepicker({
+//         autoclose:true,
+//         startDate : minimum
+//     })
+        
+// //  $('#dp2').attr('startDate',minimum);
+//    // alert(minimum);  // Comment this out after you confirm it's showing you the alert, which will indicate this is running properly
+//  }
+
+//   $('#dp1').change(updateMinimumEndDate);
+
+// $(function() {
+    
+
+// $('#car-type').append('<option selected="true" disabled>Choose Cartype</option>');
+// $('#car-type').prop('selectedIndex', 0);
+//     var carType = [
+//         {
+//         "id": "1",
+//         "type": "Sedan"},
+//     {
+//         "id": "2",
+//         "type": "SUV"}
+//     ];
+//     $.each(carType, function(i, option) {
+//         $('#car-type').append($('<option/>').attr("value", option.id).text(option.type));
+//     });
+// });
+
+
+// $(function() {
+
+//     $('#store').append('<option selected="true" disabled>Choose RentalStore</option>');
+// $('#store').prop('selectedIndex', 0);
+//     var store = [
+//         {
+//         "id": "1",
+//         "store": "store1"},
+//     {
+//         "id": "2",
+//         "store": "store2"}
+//     ];
+//     $.each(store, function(i, option) {
+//         $('#store').append($('<option/>').attr("value", option.id).text(option.store));
+//     });
+// });
+
+
+// });
+// });
+
+
+    var $select1 = $( '#select1' ),
+        $select2 = $( '#select2' ),
+    $options = $select2.find( 'option' );
+    
+$select1.on( 'change', function() {
+    $select2.html( $options.filter( '[value="' + this.value + '"]' ) );
+} ).trigger( 'change' );
+
+
+    </script>
+
+    <script type="text/javascript">
+
+    </script>
+
+    <script>
+
+
+
+
+
+
+</script>
+</body>
+
+</html>

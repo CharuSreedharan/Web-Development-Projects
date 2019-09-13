@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Food Delivery App</title>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="../js/userSpecificMenu.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+    .btn {
+    margin-right:5px;
+    margin-left:5px;
+    margin-bottom:5px;
+    margin-top:5px;
+}
+.cuisine {
+
+
+}
+.item{
+
+}
+</style>
+
+<script> 
+  
+  var dct_order_req={}
+
+    function fillUIHelperItems()
+    {
+      document.getElementById('items').innerHTML = "";
+
+      response='[{"itemId": 6,"cuisineId": 2,"itemName": "Noodles","description": "Noodles","price": 20},{"itemId": 9,"cuisineId": 2,"itemName": "Idli","description": "Idli","price": 15},{"itemId": 10,"cuisineId": 2,"itemName": "Dosa","description": "Dosa","price": 7}]';
+
+      response=JSON.parse(response);
+      var test = document.getElementById("items");
+      var items = response.length;
+      var preview=document.getElementById('prev')
+      var h3=document.createElement('h3')
+      h3.innerHTML="Items"
+      test.appendChild(h3)
+
+      for(var i = 0; i < items; i++)
+      {
+        var card = document.createElement('div');
+        card.className ='card';
+        var card_header = document.createElement('div');
+        card_header.className='card-header';
+
+
+
+        card_header.innerHTML = response[i].itemName+" $"+response[i].price;
+        test.append(card);
+        card.appendChild(card_header);
+        var card_text = document.createElement('div');
+        card_text.className='card-body';
+        card_text.innerHTML=response[i].description;
+        card.appendChild(card_text);
+         var btn_addToCart = document.createElement('button');
+        btn_addToCart.className='btn btn-success'
+        btn_addToCart.innerHTML="Add"
+
+
+        btn_addToCart.id='{"itemId":'+response[i].itemId+',"itemName":"'+response[i].itemName+'","price":"'+response[i].price+'"}'
+        btn_addToCart.addEventListener("click",open_modal)
+        btn_addToCart.setAttribute('data-toggle', 'modal');
+       btn_addToCart.setAttribute('data-target', '#myModal');
+
+        test.appendChild(btn_addToCart);
+
+
+
+        //btn_addToCart.dataset.target='#myModal'
+        //btn_addToCart.setAttribute('data-target','#myModal')
+       // btn_addToCart.dataset.target = "#myModal";
+       
+      }
+
+    }
+
+    function addToCart()
+    {
+      let url="http://localhost:8080/cart/addToCart";
+       data={
+                "userId":dct_order_req[username],
+                "restaurantId":dct_order_req[restid],
+                "cuisineId":dct_order_req[cuisineId],
+                "itemId":dct_order_req[itemId],
+                "quantity":idqty.value,
+                "totalPrice":idqty.value*dct_order_req[price],
+                "spiceLevel":idspicelvl,
+                "comment":idcomment
+                    };
+
+                    localStorage.setItem('data',data);
+                    data = JSON.stringify(data);
+                    let xhttp = new XMLHttpRequest();
+                    xhttp.open("GET", url, true);
+                    xhttp.setRequestHeader("Content-type", "application/json");
+                    xhttp.onreadystatechange = function() 
+                     {
+                    //if(this.readyState == 4 && this.status == 200) 
+                    {
+                       //let response = xhttp.responseText;
+                        //response = JSON.parse(response);
+                         if(response.code == 200) {
+                           alert(response.message);
+                           window.location.href = "./usercart.html"
+                         alert(response.message);
+                     }
+                     }
+                   }
+                   //xhttp.send(data);
+
+    }
+
+    function open_modal()
+    {
+
+      response=JSON.parse(this.id)
+      previewitem.innerHTML=response.itemName;
+      previewprice.innerHTML="$ "+response.price;
+      //dct_order_req.push({key:"itemId",value:response.itemId});
+      dct_order_req['itemId']=response.itemId
+      //alert(dct_order_req);
+      for (var key in dct_order_req){
+        console.log( key, dct_order_req[key] );
+      }
+
+    }
+    function fillUIHelperCuisines()
+        {
+          document.getElementById('cuisines').innerHTML = "";
+
+            response='[{"cuisineId":4,"cuisineName": "Continental"},{"cuisineId":5,"cuisineName": "Indian"},{"cuisineId":6,"cuisineName": "English"}]';
+                response = JSON.parse(response);
+                 //alert(response[0].name)
+                 var test = document.getElementById("cuisines");
+                 var items = response.length;
+                 var h3=document.createElement('h3')
+                h3.innerHTML="Cuisines"
+                test.appendChild(h3)
+                 for(var i = 0; i < items; i++) 
+                 {
+                var card = document.createElement('div');
+                card.className ='card';
+                var card_header = document.createElement('div');
+                card_header.className='card-header';
+                card_header.innerHTML = response[i].cuisineName;
+                test.append(card);
+                card.appendChild(card_header);
+                var card_text = document.createElement('div');
+                card_text.className='card-body';
+                card.appendChild(card_text);
+                var btnViewItems = document.createElement('button');
+                btnViewItems.className='btn btn-primary'
+                btnViewItems.innerHTML="View items"
+                btnViewItems.id=response[i].cuisineId
+                test.appendChild(btnViewItems)
+                btnViewItems.addEventListener("click", view_items);
+
+                //btn_updatecuisine.id="U"+response[i].cuisineId+response[i].cuisineName
+
+                 }
+
+        }
+    
+
+       function searchRestaurantsbyCity()
+       {
+        
+        document.getElementById('restaurants').innerHTML = "";
+        var li_item=document.getElementById('toprated');
+        var br=document.getElementById('br');
+        if (li_item!=null)
+        {
+          br.innerHTML="";  
+          li_item.innerHTML=""; 
+        }
+
+        document.getElementById('cuisines').innerHTML = "";
+        document.getElementById('items').innerHTML=""
+        var selectedcity=document.getElementById('cities').value;
+        //alert(selectedcity)
+        //let xhttp = new XMLHttpRequest();
+        let url = "http://localhost:8080/restaurant/getRestaurantsByCityName/cityName="+selectedcity;
+        //xhttp.open("POST", url, true);
+        //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+          //if(this.readyState == 4 && this.status == 200)
+          {
+            //let response = xhttp.responseText;
+            response='[{"restaurantId": 10,"userId": 24,"name": "Et Arcu Imperdiet PC","city": "Montreal","zipCode": 54963,"totalPrice": 0}]';
+            response = JSON.parse(response);
+            var items = response.length;
+            var rest=document.getElementById("restaurants")
+
+            var h3=document.createElement('h3')
+            h3.innerHTML="Restaurants"
+            rest.appendChild(h3)
+            for(var i = 0; i < items; i++) 
+            {
+              var card = document.createElement('div');
+              card.className ='card';
+              rest.appendChild(card)
+              var card_header = document.createElement('div');
+              card_header.className='card-header';
+              card_header.innerHTML=response[i].name
+              card_header.id=response[i].restaurantId
+              card.appendChild(card_header)
+              var card_text=document.createElement('div');
+              card_text.innerHTML=response[i].city+" "+response[i].zipCode
+              card.appendChild(card_text)
+               var btn_viewCuisines = document.createElement('button');
+              btn_viewCuisines.className='btn btn-primary'
+              btn_viewCuisines.innerHTML="View Cuisines"
+              btn_viewCuisines.id=response[i].restaurantId
+              btn_viewCuisines.addEventListener("click", view_cuisines);
+              rest.appendChild(btn_viewCuisines)
+
+
+            }
+            
+
+
+
+
+          }
+
+        }
+        //xhttp.send(data);
+
+        let url2 = "http://localhost:8080/restaurant/getTopRatedRestaurantsByCityName/cityName="+selectedcity;
+        dct={0:"list-group-item list-group-item-info",1:"list-group-item list-group-item-success",2:"list-group-item list-group-item-danger"}
+
+        //xhttp.open("POST", url, true);
+        //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+          //if(this.readyState == 4 && this.status == 200)
+          {
+            //let response = xhttp.responseText;
+            response='[{"restaurantId": 504,"userId": 5,"name": "Siachen","city": "Kalken","zipCode": 55667,"totalPrice": 0},{"restaurantId": 503,"userId": 50,"name": "Kalken Mahal","city": "Kalken","zipCode": 695581,"totalPrice": 0},{"restaurantId": 1,"userId": 384,"name": "Vivamus Euismod Urna Associates","city": "Kalken","zipCode": 81151,"totalPrice": 0}]';
+             response = JSON.parse(response);
+             var firstdiv=document.getElementById("search");
+             var items = response.length;
+             var br=document.createElement('br')
+             firstdiv.appendChild(br)
+             // var h3=document.createElement('h5')
+             //  h3.innerHTML="Top Rated Restaurants"
+             //  firstdiv.appendChild(h3)
+             var ul_list_item=document.createElement("ul");
+             ul_list_item.id="toprated"
+             ul_list_item.className="list-group";
+             firstdiv.appendChild(ul_list_item);
+             var li_item=document.createElement("li");
+
+             li_item.textContent="Top Rated Restaurants"
+             li_item.className="list-group-item"
+             ul_list_item.appendChild(li_item)
+             for(var i = 0; i < items; i++) {
+              li_item=document.createElement("li");
+
+              li_item.className=dct[i];
+              li_item.textContent =response[i].name
+              ul_list_item.appendChild(li_item)
+
+             }
+
+          }
+
+
+       }
+       //xhttp.send(data);
+     };
+
+     function cleardivs()
+     {
+      document.getElementById('restaurants').innerHTML = "";
+        document.getElementById('cuisines').innerHTML = "";
+        document.getElementById('items').innerHTML=""
+     }
+
+        function view_cuisines()
+        {
+          //dct_order_req.push({key:"restid",value: this.id});
+          dct_order_req['restid']=this.id;
+          //let url = "http://localhost:8080/restaurant/"+restid+"/cuisine/getCuisine"
+          //xhttp.open("GET", url, true);
+                  //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+            //if(this.readyState == 4 && this.status == 200) 
+            {
+                //let response = xhttp.responseText;
+
+                fillUIHelperCuisines();
+                
+
+            }
+        }
+        //xhttp.send(data);
+
+        }
+
+        function view_items()
+        {
+          //dct_order_req.push({key:"cuisineName",value: this.id});
+          dct_order_req['cuisineid']=this.id;
+          //let url = "http://localhost:8080/cuisine/{cuisineId}/item/getItem"
+          //xhttp.open("GET", url, true);
+                  //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+            //if(this.readyState == 4 && this.status == 200) 
+            {
+                //let response = xhttp.responseText;
+
+                fillUIHelperItems();
+                
+
+            }
+        }
+        //xhttp.send(data);
+
+        }
+
+        document.addEventListener("DOMContentLoaded", function(event) {
+            window.history.pushState(null, "", window.location.href);        
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+        let username = localStorage.getItem('username');
+        var lst_cart=[]
+        //dct_order_req.push({key:   "username",value: "username"});
+        dct_order_req['username']=username;
+       // $('form').submit(false);
+        // let data={
+        //         "userName":username
+        //             };
+        //     data = JSON.stringify(data);
+        //let xhttp = new XMLHttpRequest();
+        let url = "http://localhost:8080/restaurant/city/getDistinctCityNames";
+        //xhttp.open("POST", url, true);
+        //xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.onreadystatechange = function() 
+        {
+            //if(this.readyState == 4 && this.status == 200) 
+            {
+                //let response = xhttp.responseText;
+                response=["Cranbrook","Champlain","Capena","Zamora","Lithgow","Cimitile","Lac Ste. Anne"];
+                 //response = JSON.parse(response);
+                 //alert(response[0].name)
+                 var city_dropdown=document.getElementById("cities");
+                 var items = response.length;
+                 city_dropdown.length = 0;
+
+                let defaultOption = document.createElement('option');
+                defaultOption.text = 'Choose City';
+                city_dropdown.add(defaultOption);
+                for(var i = 0; i < items; i++) {
+                  option = document.createElement('option');
+                    option.text = response[i];
+                    option.value = response[i];
+                    city_dropdown.add(option);
+                    //alert(i)
+                // var card = document.createElement('div');
+                // card.className ='card';
+                // var card_header = document.createElement('div');
+                // card_header.className='card-header';
+                // card_header.innerHTML = response[i].name;
+                // //alert(card_header.innerHTML)
+                // test.append(card);
+                // test.appendChild(card_header);
+                // var card_text = document.createElement('div');
+                // card_text.className='card-body';
+                // card_text.innerHTML = response[i].city+" ,"+response[i].zipCode;
+                // test.appendChild(card_text);
+                // var btn_managecuisine = document.createElement('button');
+                // btn_managecuisine.className='btn btn-primary'
+                // //btn_createcuisine.margin="5;5;5;5"
+                // btn_managecuisine.innerHTML="Manage Cuisines"
+                // btn_managecuisine.id=response[i].restaurantId+"cuisine";
+                // //alert(btn_managecuisine.id)
+
+                // //var temp=document.getElementById(btn_managecuisine.id);
+                // //temp.addEventListener("click",cuisine_redirect);
+                // //temp.myParam=btn_managecuisine.id
+
+                // //btn_createcuisine.onclick="cuisine_redirect(btn_createcuisine.id)";
+                // test.appendChild(btn_managecuisine);
+                // var btn_manageitem = document.createElement('button');
+                // btn_manageitem.id=response[i].restaurantId+"item";
+                // btn_manageitem.className='btn btn-success';
+                // btn_manageitem.innerHTML="Manage Menu Items";
+                // //btn_createitem.onclick="item_redirect(btn_createitem.id)";
+                // test.appendChild(btn_manageitem);
+                //localStorage.setItem('restid',restid);
+            }
+
+
+
+
+               // if(response.code == 200) {
+                    //localStorage.setItem('rlid',response.data.rlid);
+                    
+
+
+                    //} else {
+                      //  alert(response.message);
+                    //}
+
+
+            }
+        }
+        //xhttp.send(data);
+           
+      });
+
+       // function addOnClick() {
+       //      let type_name = document.getElementById("select1").value;
+       //      let model = document.getElementById("select2").value;
+       //      let year = document.getElementById("select3").value;
+       //      if(type_name == "Choose" || model == "Choose" || year == "Choose"){
+       //          alert("Pleasse Select all values");
+       //      } else{
+       //          let data={
+       //          "model":model,
+       //          "year":year,
+       //          "rlid": localStorage.getItem('rlid')
+       //              };
+       //      data = JSON.stringify(data);
+       //  let xhttp = new XMLHttpRequest();
+       //  let url = "http://localhost:9000/api/manager/addcar";
+       //  xhttp.open("POST", url, true);
+       //  xhttp.setRequestHeader("Content-type", "application/json");
+       //  xhttp.onreadystatechange = function() {
+       //      if(this.readyState == 4 && this.status == 200) {
+       //          let response = xhttp.responseText;
+       //           response = JSON.parse(response);
+       //          if(response.code == 200) {
+       //              alert(response.message);
+ 
+       //              } else {
+       //                  alert(response.message);
+       //              }
+       //      }
+       //  }
+       //  xhttp.send(data);
+
+       //      }
+
+       // }
+
+    
+
+</script>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Baked Food Delivery App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About us</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Order Food?</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="usercart.html">View Cart</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="pastOrders.html">Past Orders</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="pastOrders.html">View Reviews</a>
+      </li>
+
+       <li class="nav-item">
+        <a class="nav-link" href="#">My Profile</a>
+      </li>
+      <li class="nav-item" id="userspecific">
+        <a class="nav-link" href="#"></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Logout</a>
+      </li>
+
+  </ul>
+  </div>
+</nav>
+</br>
+
+<div class="row">
+<div class="col-sm-3" id="search">
+       <h3>Order Food!</h3> 
+        <div class="form-group" id="city">
+                    <label for="cities">Select City:</label>
+                   <select class="form-control" id="cities" onchange="cleardivs()"></select>
+
+        </div>
+        <button type="submit" class="btn btn-info" onclick="searchRestaurantsbyCity()">Find Food!</button></br>
+
+</div>
+<div class="col-sm-3" id="restaurants">
+  
+</div>
+<div class="col-sm-3" id="cuisines">
+</div>
+<div class="col-sm-3" id="items">
+</div>
+</div>
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+      <!-- Modal content-->
+      <div class="modal-content">
+        
+        <div class="modal-body">
+          <p id="previewitem"></p>
+           <p id="previewprice"></p>
+            <label for="qty">Quantity:</label>
+            <input type="number" name="qty"class="form-control input-number" id="idqty" min="1">
+              <label for="spicelevel">Spice Level:</label>
+            <input type="number" name="spicelvl" id="idspicelvl"class="form-control input-number" min="1" max="10">
+
+            <label for="comment">Comments:</label>
+            <input type="text" name="comment" id="idcomment" class="form-control" id="idqty" required="false">
+        </div>
+
+
+
+        <div class="modal-footer">
+
+
+            <button type="submit" class="btn btn-info" data-dismiss="modal" onclick="addToCart()">Add to Cart</button></br>
+        </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</body>
+
+</html>
+
+
